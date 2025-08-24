@@ -1,5 +1,5 @@
  
-he ISEE is given by consortia of schools in cities throughout the United States where schools have joined together and have chosen to use a common entrance test program.  
+The ISEE is given by consortia of schools in cities throughout the United States where schools have joined together and have chosen to use a common entrance test program.  
  
  
 1.	The ISEE is given at individual school test sites at a wide variety of schools throughout the country and abroad and on a number of test dates. 
@@ -11,7 +11,7 @@ Complete registration information may be found in the ISEE Student Guide, which 
 What Types of Questions Are on the ISEE? 
  
 The first four sections are composed of multiple-choice questions. The fifth section, the essay, is not scored but requires the student to respond in his or her own handwriting to a preselected writing prompt.  
- eibccbgngudirevrjtffetvrn
+ 
 The first two sections, Verbal Reasoning and Quantitative Reasoning, measure the applicant’s reasoning ability. 
  
 •	The Middle Level Verbal Reasoning section consists of two types of items: vocabulary and sentence completion. Each vocabulary item consists of an abstract, grade-level appropriate word followed by four possible answer choices. Each sentence completion item consists of a sentence with one missing word followed by four potential answer choices. A student must select the word that most appropriately completes the context of the sentence. 
