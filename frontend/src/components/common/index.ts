@@ -35,3 +35,4 @@ export type {
 
 export { Navigation } from './Navigation';
 export { DashboardLayout } from './DashboardLayout';
+export { DevBanner } from './DevBanner';
