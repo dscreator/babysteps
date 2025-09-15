@@ -96,6 +96,16 @@ export interface MathAnswerResponse {
   correctAnswer: string
   score: number
   nextProblem?: MathProblem
+  stepByStepSolution?: {
+    steps: Array<{
+      step: number
+      title: string
+      content: string
+      formula?: string
+    }>
+  }
+  hints?: string[]
+  hintUsageCount?: number
 }
 
 // English practice types
@@ -104,9 +114,10 @@ export interface ReadingPassage {
   title: string
   content: string
   gradeLevel: number
-  topic: string
+  subjectArea?: string
   wordCount: number
-  estimatedReadingTime: number
+  estimatedReadingTime?: number
+  createdAt?: string
 }
 
 export interface ReadingQuestion {
@@ -115,8 +126,9 @@ export interface ReadingQuestion {
   question: string
   options: string[]
   correctAnswer: string
-  explanation: string
-  type: 'comprehension' | 'vocabulary' | 'inference' | 'main_idea'
+  explanation?: string
+  questionType: 'main_idea' | 'detail' | 'inference' | 'vocabulary'
+  createdAt?: string
 }
 
 export interface EnglishPracticeResponse {
@@ -130,11 +142,14 @@ export interface VocabularyWord {
   id: string
   word: string
   definition: string
-  partOfSpeech: string
+  partOfSpeech?: string
   synonyms: string[]
   antonyms: string[]
-  examples: string[]
-  difficulty: number
+  examples?: string[]
+  exampleSentence?: string
+  difficultyLevel: number
+  gradeLevel: number
+  createdAt?: string
 }
 
 // Essay practice types

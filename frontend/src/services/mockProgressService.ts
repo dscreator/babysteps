@@ -1,11 +1,9 @@
 import type { 
   ProgressDashboard, 
   DetailedProgress, 
-  TutorRecommendations,
-  PracticeSessionResponse,
-  Achievement
+  TutorRecommendations
 } from '../types/api'
-import { ApiResponse } from './apiService'
+import { ApiResponse, ApiError } from './apiService'
 
 // Mock data for development
 const mockDashboardData: ProgressDashboard = {
@@ -131,17 +129,18 @@ const mockTutorRecommendations: TutorRecommendations = {
 
 // Mock service implementation
 export class MockProgressService {
-  async getDashboard(): Promise<ApiResponse<ProgressDashboard>> {
+  async getDashboard(): Promise<ApiResponse<ProgressDashboard> | ApiError> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500))
     
     return {
       success: true,
       data: mockDashboardData,
+      error: null,
     }
   }
 
-  async getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress>> {
+  async getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress> | ApiError> {
     await new Promise(resolve => setTimeout(resolve, 300))
     
     const mockDetailedProgress: DetailedProgress = {
@@ -173,24 +172,27 @@ export class MockProgressService {
     return {
       success: true,
       data: mockDetailedProgress,
+      error: null,
     }
   }
 
-  async getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations>> {
+  async getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations> | ApiError> {
     await new Promise(resolve => setTimeout(resolve, 400))
     
     return {
       success: true,
       data: mockTutorRecommendations,
+      error: null,
     }
   }
 
-  async updateDailyGoal(minutes: number): Promise<ApiResponse<void>> {
+  async updateDailyGoal(_minutes: number): Promise<ApiResponse<void> | ApiError> {
     await new Promise(resolve => setTimeout(resolve, 200))
     
     return {
       success: true,
       data: undefined,
+      error: null,
     }
   }
 }

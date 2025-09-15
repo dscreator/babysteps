@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { ExamCountdown } from './ExamCountdown'
 import { ProgressOverview } from './ProgressOverview'

@@ -1,3 +1,4 @@
+export { DashboardContent } from './DashboardContent'
 export { ExamCountdown } from './ExamCountdown'
 export { ProgressOverview } from './ProgressOverview'
 export { QuickActions } from './QuickActions'

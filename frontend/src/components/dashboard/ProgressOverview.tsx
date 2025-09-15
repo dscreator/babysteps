@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Card, CardContent, CardHeader, CardTitle } from '../common/Card'
 import type { ProgressDashboard } from '../../types/api'
 

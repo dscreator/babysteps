@@ -1,4 +1,3 @@
-import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../common/Card'
 import { formatPracticeTime } from '../../utils/dateUtils'
 import type { ProgressDashboard } from '../../types/api'

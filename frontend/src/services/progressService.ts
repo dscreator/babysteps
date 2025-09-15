@@ -1,4 +1,4 @@
-import { apiService, ApiResponse } from './apiService'
+import { apiService, ApiResponse, ApiError } from './apiService'
 import { mockProgressService } from './mockProgressService'
 import type { 
   ProgressDashboard, 
@@ -7,14 +7,14 @@ import type {
 } from '../types/api'
 
 export interface ProgressService {
-  getDashboard(): Promise<ApiResponse<ProgressDashboard>>
-  getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress>>
-  getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations>>
-  updateDailyGoal(minutes: number): Promise<ApiResponse<void>>
+  getDashboard(): Promise<ApiResponse<ProgressDashboard> | ApiError>
+  getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress> | ApiError>
+  getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations> | ApiError>
+  updateDailyGoal(minutes: number): Promise<ApiResponse<void> | ApiError>
 }
 
 class ProgressServiceImpl implements ProgressService {
-  async getDashboard(): Promise<ApiResponse<ProgressDashboard>> {
+  async getDashboard(): Promise<ApiResponse<ProgressDashboard> | ApiError> {
     // Use mock data in development until backend is ready
     if (import.meta.env.DEV) {
       return mockProgressService.getDashboard()
@@ -22,21 +22,21 @@ class ProgressServiceImpl implements ProgressService {
     return apiService.get<ProgressDashboard>('/progress/dashboard')
   }
 
-  async getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress>> {
+  async getDetailedProgress(subject: string): Promise<ApiResponse<DetailedProgress> | ApiError> {
     if (import.meta.env.DEV) {
       return mockProgressService.getDetailedProgress(subject)
     }
     return apiService.get<DetailedProgress>(`/progress/detailed/${subject}`)
   }
 
-  async getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations>> {
+  async getTutorRecommendations(): Promise<ApiResponse<TutorRecommendations> | ApiError> {
     if (import.meta.env.DEV) {
       return mockProgressService.getTutorRecommendations()
     }
     return apiService.get<TutorRecommendations>('/tutor/recommendations')
   }
 
-  async updateDailyGoal(minutes: number): Promise<ApiResponse<void>> {
+  async updateDailyGoal(minutes: number): Promise<ApiResponse<void> | ApiError> {
     if (import.meta.env.DEV) {
       return mockProgressService.updateDailyGoal(minutes)
     }

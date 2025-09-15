@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Card, CardContent } from '../common/Card'
 import { getMotivationalMessage, formatExamCountdown } from '../../utils/dateUtils'
 
