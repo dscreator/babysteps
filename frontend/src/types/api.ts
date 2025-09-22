@@ -189,6 +189,33 @@ export interface EssaySubmissionRequest {
   wordCount: number
 }
 
+export interface EssaySubmission {
+  id: string
+  userId: string
+  promptId: string
+  content: string
+  wordCount: number
+  timeSpent?: number
+  submittedAt: string
+}
+
+export interface EssayAnalysis {
+  id: string
+  submissionId: string
+  overallScore: number
+  structureScore: number
+  grammarScore: number
+  contentScore: number
+  vocabularyScore: number
+  feedback: {
+    strengths: string[]
+    improvements: string[]
+    specific: string[]
+  }
+  rubricBreakdown: Record<string, any>
+  analyzedAt: string
+}
+
 export interface EssayAnalysisResponse {
   score: number
   feedback: {

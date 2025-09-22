@@ -10,6 +10,7 @@ import { MathPracticePage } from './pages/MathPracticePage'
 import { EnglishPracticePage } from './pages/EnglishPracticePage'
 import { EssayPracticePage } from './pages/EssayPracticePage'
 import { ProgressPage } from './pages/ProgressPage'
+import { TutorPage } from './pages/TutorPage'
 
 function App() {
   return (
@@ -64,6 +65,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProgressPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor"
+            element={
+              <ProtectedRoute>
+                <TutorPage />
               </ProtectedRoute>
             }
           />

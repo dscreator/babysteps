@@ -7,3 +7,6 @@ export * from './useProgressQueries'
 
 // Export math practice hooks
 export * from './useMathQueries'
+
+// Export tutor hooks
+export * from './useTutorQueries'

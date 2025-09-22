@@ -174,3 +174,57 @@ export interface SubmitAnswerResponse {
   }
   hintUsageCount?: number
 }
+
+// Essay analysis types
+export interface EssaySubmission {
+  id: string
+  userId: string
+  promptId: string
+  content: string
+  wordCount: number
+  timeSpent?: number
+  submittedAt: string
+}
+
+export interface EssayAnalysis {
+  id: string
+  submissionId: string
+  overallScore: number
+  structureScore: number
+  grammarScore: number
+  contentScore: number
+  vocabularyScore: number
+  feedback: EssayFeedback
+  rubricBreakdown: Record<string, RubricScore>
+  analyzedAt: string
+}
+
+export interface EssayFeedback {
+  strengths: string[]
+  improvements: string[]
+  specific: string[]
+}
+
+export interface RubricScore {
+  score: number
+  feedback: string
+}
+
+// Request/Response types for essay analysis
+export interface SubmitEssayRequest {
+  promptId: string
+  content: string
+  timeSpent?: number
+}
+
+export interface AnalyzeEssayRequest {
+  submissionId: string
+}
+
+export interface EssayAnalysisResponse {
+  analysis: EssayAnalysis
+  suggestions: {
+    nextSteps: string[]
+    practiceAreas: string[]
+  }
+}

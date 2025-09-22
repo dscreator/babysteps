@@ -1,6 +1,33 @@
 import { apiService, isApiError } from './apiService'
 import type { EssayPrompt, PracticeSessionRequest, PracticeSessionResponse } from '../types/api'
 
+export interface EssaySubmission {
+  id: string
+  userId: string
+  promptId: string
+  content: string
+  wordCount: number
+  timeSpent?: number
+  submittedAt: string
+}
+
+export interface EssayAnalysis {
+  id: string
+  submissionId: string
+  overallScore: number
+  structureScore: number
+  grammarScore: number
+  contentScore: number
+  vocabularyScore: number
+  feedback: {
+    strengths: string[]
+    improvements: string[]
+    specific: string[]
+  }
+  rubricBreakdown: Record<string, any>
+  analyzedAt: string
+}
+
 export interface EssayPromptFilters {
   type?: 'narrative' | 'expository' | 'persuasive'
   gradeLevel?: number
@@ -90,6 +117,35 @@ class EssayService {
     }
 
     return response.data.session
+  }
+
+  async getEssayHistory(limit: number = 10) {
+    const response = await apiService.get<{
+      submissions: EssaySubmission[]
+      analyses: EssayAnalysis[]
+    }>(`/practice/essay/history?limit=${limit}`)
+
+    if (isApiError(response)) {
+      throw new Error(response.error.message)
+    }
+
+    return response.data
+  }
+
+  async analyzeEssay(submissionId: string) {
+    const response = await apiService.post<{
+      analysis: EssayAnalysis
+      suggestions: {
+        nextSteps: string[]
+        practiceAreas: string[]
+      }
+    }>('/practice/essay/analyze', { submissionId })
+
+    if (isApiError(response)) {
+      throw new Error(response.error.message)
+    }
+
+    return response.data
   }
 }
 

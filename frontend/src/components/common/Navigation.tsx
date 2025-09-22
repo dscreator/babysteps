@@ -27,6 +27,7 @@ export function Navigation({ className = '' }: NavigationProps) {
     { path: '/practice/math', label: 'Math Practice', icon: '🔢' },
     { path: '/practice/english', label: 'English Practice', icon: '📚' },
     { path: '/practice/essay', label: 'Essay Practice', icon: '✍️' },
+    { path: '/tutor', label: 'AI Tutor', icon: '🤖' },
     { path: '/progress', label: 'Progress', icon: '📈' },
   ];
 

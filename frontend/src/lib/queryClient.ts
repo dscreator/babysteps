@@ -50,6 +50,8 @@ export const queryKeys = {
     essay: {
       prompts: (filters?: any) => ['practice', 'essay', 'prompts', filters] as const,
       session: (sessionId: string) => ['practice', 'essay', 'session', sessionId] as const,
+      history: (limit?: number) => ['practice', 'essay', 'history', limit] as const,
+      analysis: (submissionId: string) => ['practice', 'essay', 'analysis', submissionId] as const,
     },
   },
   // Progress related queries

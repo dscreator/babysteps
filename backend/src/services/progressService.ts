@@ -187,7 +187,80 @@ export class ProgressService {
   }
 
   /**
-   * Get comprehensive dashboard data
+   * Update essay progress based on essay analyses
+   */
+  async updateEssayProgress(userId: string, essayAnalyses: any[]): Promise<UserProgress> {
+    if (essayAnalyses.length === 0) {
+      return await this.getUserProgress(userId, 'essay')
+    }
+
+    // Calculate overall essay performance
+    const overallScore = essayAnalyses.reduce((sum, analysis) => sum + analysis.overall_score, 0) / essayAnalyses.length
+
+    // Calculate topic scores by essay type
+    const topicScores: Record<string, number[]> = {}
+    
+    // Get essay submissions to determine types
+    const submissionIds = essayAnalyses.map(a => a.submission_id)
+    const { data: submissions } = await supabase
+      .from('essay_submissions')
+      .select(`
+        id,
+        essay_prompts (type)
+      `)
+      .in('id', submissionIds)
+
+    essayAnalyses.forEach(analysis => {
+      const submission = submissions?.find(s => s.id === analysis.submission_id)
+      const essayType = submission?.essay_prompts?.type || 'general'
+      
+      if (!topicScores[essayType]) {
+        topicScores[essayType] = []
+      }
+      topicScores[essayType].push(analysis.overall_score)
+    })
+
+    // Average scores by topic
+    const averageTopicScores: Record<string, number> = {}
+    Object.entries(topicScores).forEach(([topic, scores]) => {
+      averageTopicScores[topic] = scores.reduce((sum, score) => sum + score, 0) / scores.length
+    })
+
+    // Identify strengths and weaknesses
+    const { weakAreas, strongAreas } = this.identifyStrengthsAndWeaknesses(averageTopicScores)
+
+    // Calculate streak days
+    const streakDays = await this.calculateStreakDays(userId)
+
+    // Update progress record
+    const updateData = {
+      overall_score: overallScore,
+      topic_scores: averageTopicScores,
+      streak_days: streakDays,
+      weak_areas: weakAreas,
+      strong_areas: strongAreas,
+      last_practice_date: new Date().toISOString().split('T')[0]
+    }
+
+    const { data, error } = await supabase
+      .from('user_progress')
+      .upsert({
+        user_id: userId,
+        subject: 'essay',
+        ...updateData
+      })
+      .select()
+      .single()
+
+    if (error) {
+      throw new Error(`Failed to update essay progress: ${error.message}`)
+    }
+
+    return this.mapUserProgress(data)
+  }
+
+  /**
+   * Get comprehensive dashboard data including essay performance
    */
   async getDashboardData(userId: string): Promise<{
     overallProgress: UserProgress[]
@@ -199,6 +272,13 @@ export class ProgressService {
       percentage: number
     }
     upcomingMilestones: string[]
+    essayPerformance?: {
+      totalEssays: number
+      averageScore: number
+      recentImprovement: number
+      strongAreas: string[]
+      weakAreas: string[]
+    }
   }> {
     const [overallProgress, recentSessions] = await Promise.all([
       this.getAllUserProgress(userId),
@@ -206,6 +286,47 @@ export class ProgressService {
     ])
 
     const streakDays = await this.calculateStreakDays(userId)
+
+    // Get essay performance data
+    const { data: essayAnalyses } = await supabase
+      .from('essay_analyses')
+      .select(`
+        *,
+        essay_submissions!inner (
+          user_id,
+          submitted_at
+        )
+      `)
+      .eq('essay_submissions.user_id', userId)
+      .order('essay_submissions.submitted_at', { ascending: false })
+      .limit(10)
+
+    let essayPerformance
+    if (essayAnalyses && essayAnalyses.length > 0) {
+      const totalEssays = essayAnalyses.length
+      const averageScore = essayAnalyses.reduce((sum, a) => sum + a.overall_score, 0) / totalEssays
+      
+      // Calculate recent improvement (last 3 vs previous 3)
+      let recentImprovement = 0
+      if (essayAnalyses.length >= 6) {
+        const recent = essayAnalyses.slice(0, 3)
+        const previous = essayAnalyses.slice(3, 6)
+        const recentAvg = recent.reduce((sum, a) => sum + a.overall_score, 0) / 3
+        const previousAvg = previous.reduce((sum, a) => sum + a.overall_score, 0) / 3
+        recentImprovement = recentAvg - previousAvg
+      }
+
+      // Get essay progress for strengths/weaknesses
+      const essayProgress = overallProgress.find(p => p.subject === 'essay')
+      
+      essayPerformance = {
+        totalEssays,
+        averageScore,
+        recentImprovement,
+        strongAreas: essayProgress?.strongAreas || [],
+        weakAreas: essayProgress?.weakAreas || []
+      }
+    }
     
     // Calculate weekly goal progress (assuming 300 minutes per week target)
     const weekStart = new Date()
@@ -238,7 +359,8 @@ export class ProgressService {
       recentSessions,
       streakDays,
       weeklyGoalProgress,
-      upcomingMilestones
+      upcomingMilestones,
+      essayPerformance
     }
   }
 

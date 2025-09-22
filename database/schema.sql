@@ -237,9 +237,140 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Add essay submissions table
+CREATE TABLE public.essay_submissions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  prompt_id UUID REFERENCES public.essay_prompts(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  word_count INTEGER NOT NULL,
+  time_spent INTEGER, -- in minutes
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add essay analyses table
+CREATE TABLE public.essay_analyses (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  submission_id UUID REFERENCES public.essay_submissions(id) ON DELETE CASCADE NOT NULL,
+  overall_score DECIMAL(5,2) NOT NULL CHECK (overall_score >= 0 AND overall_score <= 100),
+  structure_score DECIMAL(5,2) NOT NULL CHECK (structure_score >= 0 AND structure_score <= 100),
+  grammar_score DECIMAL(5,2) NOT NULL CHECK (grammar_score >= 0 AND grammar_score <= 100),
+  content_score DECIMAL(5,2) NOT NULL CHECK (content_score >= 0 AND content_score <= 100),
+  vocabulary_score DECIMAL(5,2) NOT NULL CHECK (vocabulary_score >= 0 AND vocabulary_score <= 100),
+  feedback JSONB NOT NULL,
+  rubric_breakdown JSONB NOT NULL,
+  analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(submission_id) -- One analysis per submission
+);
+
+-- Enable RLS on new tables
+ALTER TABLE public.essay_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.essay_analyses ENABLE ROW LEVEL SECURITY;
+
+-- RLS policies for essay submissions
+CREATE POLICY "Users can view own essay submissions" ON public.essay_submissions
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own essay submissions" ON public.essay_submissions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own essay submissions" ON public.essay_submissions
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- RLS policies for essay analyses
+CREATE POLICY "Users can view own essay analyses" ON public.essay_analyses
+  FOR SELECT USING (
+    auth.uid() = (
+      SELECT user_id FROM public.essay_submissions 
+      WHERE id = essay_analyses.submission_id
+    )
+  );
+
+CREATE POLICY "Service can create essay analyses" ON public.essay_analyses
+  FOR INSERT WITH CHECK (
+    auth.uid() = (
+      SELECT user_id FROM public.essay_submissions 
+      WHERE id = essay_analyses.submission_id
+    )
+  );
+
+-- Indexes for performance
+CREATE INDEX idx_essay_submissions_user_id ON public.essay_submissions(user_id);
+CREATE INDEX idx_essay_submissions_prompt_id ON public.essay_submissions(prompt_id);
+CREATE INDEX idx_essay_submissions_submitted_at ON public.essay_submissions(submitted_at);
+CREATE INDEX idx_essay_analyses_submission_id ON public.essay_analyses(submission_id);
+CREATE INDEX idx_essay_analyses_overall_score ON public.essay_analyses(overall_score);
+
+-- Add chat conversations table
+CREATE TABLE public.chat_conversations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  subject TEXT NOT NULL CHECK (subject IN ('math', 'english', 'essay', 'general')),
+  title TEXT,
+  context JSONB DEFAULT '{}',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add chat messages table
+CREATE TABLE public.chat_messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  conversation_id UUID REFERENCES public.chat_conversations(id) ON DELETE CASCADE NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS on chat tables
+ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+
+-- RLS policies for chat conversations
+CREATE POLICY "Users can view own conversations" ON public.chat_conversations
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own conversations" ON public.chat_conversations
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own conversations" ON public.chat_conversations
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- RLS policies for chat messages
+CREATE POLICY "Users can view own messages" ON public.chat_messages
+  FOR SELECT USING (
+    auth.uid() = (
+      SELECT user_id FROM public.chat_conversations 
+      WHERE id = chat_messages.conversation_id
+    )
+  );
+
+CREATE POLICY "Users can create own messages" ON public.chat_messages
+  FOR INSERT WITH CHECK (
+    auth.uid() = (
+      SELECT user_id FROM public.chat_conversations 
+      WHERE id = chat_messages.conversation_id
+    )
+  );
+
+-- Indexes for performance
+CREATE INDEX idx_chat_conversations_user_id ON public.chat_conversations(user_id);
+CREATE INDEX idx_chat_conversations_updated_at ON public.chat_conversations(updated_at);
+CREATE INDEX idx_chat_conversations_subject ON public.chat_conversations(subject);
+CREATE INDEX idx_chat_messages_conversation_id ON public.chat_messages(conversation_id);
+CREATE INDEX idx_chat_messages_created_at ON public.chat_messages(created_at);
+CREATE INDEX idx_chat_messages_role ON public.chat_messages(role);
+
 -- Triggers for updated_at
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_user_progress_updated_at BEFORE UPDATE ON public.user_progress
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger for updated_at on conversations
+CREATE TRIGGER update_chat_conversations_updated_at BEFORE UPDATE ON public.chat_conversations
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

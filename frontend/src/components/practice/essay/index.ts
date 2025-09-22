@@ -1,1 +1,7 @@
 export { EssayPractice } from './EssayPractice'
+export { EssayRevisionDashboard } from './EssayRevisionDashboard'
+export { EssayRevisionTracker } from './EssayRevisionTracker'
+export { EssayRevisionComparison } from './EssayRevisionComparison'
+export { EssayImprovementTracker } from './EssayImprovementTracker'
+export { EssayStructuralSuggestions } from './EssayStructuralSuggestions'
+export { EssayLanguageEnhancement } from './EssayLanguageEnhancement'

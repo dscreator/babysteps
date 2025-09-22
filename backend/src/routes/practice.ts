@@ -15,6 +15,14 @@ import {
   validateSubmitAnswer,
   validateRecordInteraction
 } from '../utils/practiceValidation'
+import {
+  createEssayValidationMiddleware,
+  submitEssaySchema,
+  analyzeEssaySchema,
+  getEssayHistorySchema,
+  validateEssayQueryParams
+} from '../utils/essayValidation'
+import { essayAnalysisService } from '../services/ai/essayAnalysisService'
 
 const router = Router()
 
@@ -411,6 +419,93 @@ router.get('/content/stats', async (req: Request, res: Response) => {
     console.error('Error fetching content stats:', error)
     res.status(500).json({ 
       error: 'Failed to fetch content stats',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+// Essay analysis routes
+router.post('/essay/submit', createEssayValidationMiddleware(submitEssaySchema), async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' })
+    }
+
+    const submission = await essayAnalysisService.submitEssay(userId, req.validatedData)
+    res.status(201).json({ submission })
+  } catch (error) {
+    console.error('Error submitting essay:', error)
+    res.status(500).json({ 
+      error: 'Failed to submit essay',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+router.post('/essay/analyze', createEssayValidationMiddleware(analyzeEssaySchema), async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' })
+    }
+
+    const { submissionId } = req.validatedData
+    const analysis = await essayAnalysisService.analyzeEssay(userId, submissionId)
+    res.json(analysis)
+  } catch (error) {
+    console.error('Error analyzing essay:', error)
+    
+    // Handle rate limiting errors specifically
+    if (error instanceof Error && error.message.includes('Rate limit exceeded')) {
+      return res.status(429).json({ 
+        error: 'Rate limit exceeded',
+        message: error.message
+      })
+    }
+
+    res.status(500).json({ 
+      error: 'Failed to analyze essay',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+router.get('/essay/history', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' })
+    }
+
+    const params = validateEssayQueryParams(getEssayHistorySchema, req.query)
+    const history = await essayAnalysisService.getUserEssayHistory(userId, params.limit)
+    res.json(history)
+  } catch (error) {
+    console.error('Error fetching essay history:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch essay history',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+router.get('/essay/submissions/:submissionId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId
+    const { submissionId } = req.params
+
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' })
+    }
+
+    // This will be handled by the essay analysis service
+    const analysis = await essayAnalysisService.analyzeEssay(userId, submissionId)
+    res.json(analysis)
+  } catch (error) {
+    console.error('Error fetching essay submission:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch essay submission',
       message: error instanceof Error ? error.message : 'Unknown error'
     })
   }
