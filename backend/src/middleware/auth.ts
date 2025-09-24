@@ -23,7 +23,11 @@ export const authenticateToken = async (
     }
 
     const userData = await authService.verifyToken(token)
-    req.user = userData
+    req.user = {
+      id: userData.userId,
+      userId: userData.userId,
+      email: userData.email
+    }
     next()
   } catch (error) {
     console.error('Token verification failed:', error)
@@ -42,7 +46,11 @@ export const optionalAuth = async (
 
     if (token) {
       const userData = await authService.verifyToken(token)
-      req.user = userData
+      req.user = {
+        id: userData.userId,
+        userId: userData.userId,
+        email: userData.email
+      }
     }
     
     next()

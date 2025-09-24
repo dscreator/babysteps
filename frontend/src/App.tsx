@@ -9,8 +9,11 @@ import { DashboardPage } from './pages/DashboardPage'
 import { MathPracticePage } from './pages/MathPracticePage'
 import { EnglishPracticePage } from './pages/EnglishPracticePage'
 import { EssayPracticePage } from './pages/EssayPracticePage'
+import { VocabularyPracticePage } from './pages/VocabularyPracticePage'
+import { EnglishProgressPage } from './pages/EnglishProgressPage'
 import { ProgressPage } from './pages/ProgressPage'
 import { TutorPage } from './pages/TutorPage'
+import { ParentDashboardPage } from './pages/ParentDashboardPage'
 
 function App() {
   return (
@@ -61,10 +64,26 @@ function App() {
             }
           />
           <Route
+            path="/practice/vocabulary"
+            element={
+              <ProtectedRoute>
+                <VocabularyPracticePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/progress"
             element={
               <ProtectedRoute>
                 <ProgressPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/progress/english"
+            element={
+              <ProtectedRoute>
+                <EnglishProgressPage />
               </ProtectedRoute>
             }
           />
@@ -76,6 +95,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/parent" element={<ParentDashboardPage />} />
         </Routes>
         <Toaster position="top-right" />
       </div>

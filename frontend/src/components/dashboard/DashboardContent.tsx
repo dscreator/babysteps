@@ -5,6 +5,7 @@ import { ProgressOverview } from './ProgressOverview'
 import { QuickActions } from './QuickActions'
 import { StudyStreak } from './StudyStreak'
 import { MotivationalMessage } from './MotivationalMessage'
+import { MotivationalMessaging } from '../progress/MotivationalMessaging'
 import { useDashboardData } from '../../hooks/useProgressQueries'
 import { useProfile } from '../../hooks/useAuthQueries'
 
@@ -77,6 +78,9 @@ export function DashboardContent() {
           <ExamCountdown examDate={profile.examDate} />
         </div>
       </div>
+
+      {/* Motivational Messages */}
+      <MotivationalMessaging compact={true} />
 
       {/* Progress Overview */}
       <ProgressOverview progress={dashboardData.overallProgress} />

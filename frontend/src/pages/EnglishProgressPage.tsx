@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
 import { EnglishProgressDashboard } from '../components/practice/english/EnglishProgressDashboard'
 import { Button } from '../components/common/Button'
-import { DashboardLayout } from '../components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../components/common/DashboardLayout'
+import { Breadcrumb } from '../components/common/Breadcrumb'
+import { QuickNavigation, englishModuleNavigation } from '../components/common/QuickNavigation'
 
 export function EnglishProgressPage() {
   const navigate = useNavigate()
@@ -59,6 +61,9 @@ export function EnglishProgressPage() {
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb />
+        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -106,6 +111,14 @@ export function EnglishProgressPage() {
 
         {/* Progress Dashboard */}
         <EnglishProgressDashboard />
+
+        {/* Quick Navigation */}
+        <div className="mt-8 mb-8">
+          <QuickNavigation 
+            title="Continue Learning"
+            items={englishModuleNavigation}
+          />
+        </div>
 
         {/* Footer Actions */}
         <div className="mt-12 pt-8 border-t border-gray-200">

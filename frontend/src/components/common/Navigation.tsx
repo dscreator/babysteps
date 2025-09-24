@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLogout } from '../../hooks/useAuthMutations';
 import { Button } from './Button';
@@ -13,6 +14,7 @@ export function Navigation({ className = '' }: NavigationProps) {
   const location = useLocation();
   const logoutMutation = useLogout();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -24,8 +26,21 @@ export function Navigation({ className = '' }: NavigationProps) {
 
   const navigationItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/practice/math', label: 'Math Practice', icon: '🔢' },
-    { path: '/practice/english', label: 'English Practice', icon: '📚' },
+    { 
+      path: '/practice/math', 
+      label: 'Math Practice', 
+      icon: '🔢',
+      subItems: []
+    },
+    { 
+      path: '/practice/english', 
+      label: 'English Practice', 
+      icon: '📚',
+      subItems: [
+        { path: '/practice/vocabulary', label: 'Vocabulary', icon: '📝' },
+        { path: '/progress/english', label: 'English Progress', icon: '📊' }
+      ]
+    },
     { path: '/practice/essay', label: 'Essay Practice', icon: '✍️' },
     { path: '/tutor', label: 'AI Tutor', icon: '🤖' },
     { path: '/progress', label: 'Progress', icon: '📈' },
@@ -50,18 +65,58 @@ export function Navigation({ className = '' }: NavigationProps) {
             {/* Desktop navigation */}
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navigationItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
-                    isActivePath(item.path)
-                      ? 'border-primary-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.label}
-                </Link>
+                <div key={item.path} className="relative">
+                  {item.subItems && item.subItems.length > 0 ? (
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setOpenDropdown(item.path)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
+                      <Link
+                        to={item.path}
+                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                          isActivePath(item.path)
+                            ? 'border-primary-500 text-gray-900'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        }`}
+                      >
+                        <span className="mr-2">{item.icon}</span>
+                        {item.label}
+                        <ChevronDown className="ml-1 w-4 h-4" />
+                      </Link>
+                      
+                      {/* Dropdown Menu */}
+                      {openDropdown === item.path && (
+                        <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                          <div className="py-1">
+                            {item.subItems.map((subItem) => (
+                              <Link
+                                key={subItem.path}
+                                to={subItem.path}
+                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                              >
+                                <span className="mr-3">{subItem.icon}</span>
+                                {subItem.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                        isActivePath(item.path)
+                          ? 'border-primary-500 text-gray-900'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <span className="mr-2">{item.icon}</span>
+                      {item.label}
+                    </Link>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -72,6 +127,14 @@ export function Navigation({ className = '' }: NavigationProps) {
               <span className="text-sm text-gray-700">
                 Welcome, {user.user_metadata?.firstName || user.email}
               </span>
+              <a
+                href="/parent"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Parent Dashboard
+              </a>
               <Button
                 variant="outline"
                 size="sm"
@@ -120,19 +183,37 @@ export function Navigation({ className = '' }: NavigationProps) {
       <div className={`sm:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
         <div className="pt-2 pb-3 space-y-1">
           {navigationItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setIsMenuOpen(false)}
-              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200 ${
-                isActivePath(item.path)
-                  ? 'bg-primary-50 border-primary-500 text-primary-700'
-                  : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
-              }`}
-            >
-              <span className="mr-2">{item.icon}</span>
-              {item.label}
-            </Link>
+            <div key={item.path}>
+              <Link
+                to={item.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200 ${
+                  isActivePath(item.path)
+                    ? 'bg-primary-50 border-primary-500 text-primary-700'
+                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                }`}
+              >
+                <span className="mr-2">{item.icon}</span>
+                {item.label}
+              </Link>
+              
+              {/* Mobile sub-items */}
+              {item.subItems && item.subItems.length > 0 && (
+                <div className="ml-4 space-y-1">
+                  {item.subItems.map((subItem) => (
+                    <Link
+                      key={subItem.path}
+                      to={subItem.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block pl-6 pr-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    >
+                      <span className="mr-2">{subItem.icon}</span>
+                      {subItem.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
         

@@ -8,6 +8,9 @@ import { authRoutes } from './routes/auth'
 import { practiceRoutes } from './routes/practice'
 import { progressRoutes } from './routes/progress'
 import { tutorRoutes } from './routes/tutor'
+import { parentRoutes, studentParentRoutes } from './routes/parent'
+import { notificationRoutes } from './routes/notifications'
+import { notificationScheduler } from './services/notificationScheduler'
 
 // Load environment variables
 dotenv.config()
@@ -35,6 +38,9 @@ app.use('/api/auth', authRoutes)
 app.use('/api/practice', practiceRoutes)
 app.use('/api/progress', progressRoutes)
 app.use('/api/tutor', tutorRoutes)
+app.use('/api/parent', parentRoutes)
+app.use('/api/student/parent', studentParentRoutes)
+app.use('/api/notifications', notificationRoutes)
 
 // Error handling
 app.use(errorHandler)
@@ -48,6 +54,22 @@ app.use('*', (req, res) => {
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
+    
+    // Start notification scheduler
+    notificationScheduler.start()
+    
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully')
+      notificationScheduler.stop()
+      process.exit(0)
+    })
+    
+    process.on('SIGINT', () => {
+      console.log('SIGINT received, shutting down gracefully')
+      notificationScheduler.stop()
+      process.exit(0)
+    })
   })
 }
 

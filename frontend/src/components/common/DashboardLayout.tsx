@@ -1,6 +1,5 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Navigation } from './Navigation';
-import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks/useAuthQueries';
 import { ProfileSetup } from '../auth/ProfileSetup';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -10,7 +9,6 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth();
   const { data: profile, isLoading, refetch } = useProfile();
 
   // Show loading while fetching profile

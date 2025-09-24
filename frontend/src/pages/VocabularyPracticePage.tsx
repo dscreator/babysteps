@@ -4,7 +4,9 @@ import { BookOpen, Zap, Shuffle, Settings } from 'lucide-react'
 import { VocabularySession } from '../components/practice/english/VocabularySession'
 import { Button } from '../components/common/Button'
 import { Card } from '../components/common/Card'
-import { DashboardLayout } from '../components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../components/common/DashboardLayout'
+import { Breadcrumb } from '../components/common/Breadcrumb'
+import { QuickNavigation, englishModuleNavigation } from '../components/common/QuickNavigation'
 import { englishService } from '../services/englishService'
 
 interface PracticeSettings {
@@ -58,6 +60,9 @@ export function VocabularyPracticePage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb />
+        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -275,6 +280,14 @@ export function VocabularyPracticePage() {
             </Card>
           </div>
         )}
+
+        {/* Quick Navigation */}
+        <div className="mb-8">
+          <QuickNavigation 
+            title="Related Practice Modules"
+            items={englishModuleNavigation}
+          />
+        </div>
 
         {/* Spaced Repetition Info */}
         <Card>

@@ -4,7 +4,9 @@ import { BookOpen, Settings, BarChart3 } from 'lucide-react'
 import { EnglishSession } from '../components/practice/english/EnglishSession'
 import { Button } from '../components/common/Button'
 import { Card } from '../components/common/Card'
-import { DashboardLayout } from '../components/dashboard/DashboardLayout'
+import { DashboardLayout } from '../components/common/DashboardLayout'
+import { Breadcrumb } from '../components/common/Breadcrumb'
+import { QuickNavigation, englishModuleNavigation } from '../components/common/QuickNavigation'
 import { englishService } from '../services/englishService'
 
 interface PracticeSettings {
@@ -53,6 +55,9 @@ export function EnglishPracticePage() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb />
+        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -209,6 +214,14 @@ export function EnglishPracticePage() {
             </Card>
           </div>
         )}
+
+        {/* Quick Navigation */}
+        <div className="mb-8">
+          <QuickNavigation 
+            title="Related Practice Modules"
+            items={englishModuleNavigation}
+          />
+        </div>
 
         {/* Practice Tips */}
         <Card>
