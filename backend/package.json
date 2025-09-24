@@ -12,8 +12,7 @@
     "test:coverage": "vitest --run --coverage",
     "test:ui": "vitest --ui",
     "db:migrate": "supabase db push",
-    "db:seed": "tsx src/scripts/seed.ts",
-
+    "db:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.4",

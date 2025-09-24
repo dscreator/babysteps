@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useRealTimeSync } from '../../hooks/useRealTimeSync'
 
 interface SyncStatusProps {

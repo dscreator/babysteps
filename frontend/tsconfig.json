@@ -27,5 +27,13 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/test/**/*",
+    "e2e/**/*",
+    "playwright-report/**/*",
+    "test-results/**/*"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

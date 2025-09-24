@@ -10,7 +10,7 @@ interface ConsentStatus {
 }
 
 export function COPPACompliance() {
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
   const [requiresConsent, setRequiresConsent] = useState<boolean | null>(null)
   const [consentStatus, setConsentStatus] = useState<ConsentStatus | null>(null)
   const [loading, setLoading] = useState(true)

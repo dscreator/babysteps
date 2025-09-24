@@ -105,7 +105,7 @@ export function formatPracticeTime(minutes: number): string {
  */
 export function getMotivationalMessage(
   daysRemaining: number,
-  overallProgress: number,
+  _overallProgress: number,
   streakDays: number
 ): string {
   const messages = {

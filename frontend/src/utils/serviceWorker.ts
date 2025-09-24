@@ -231,8 +231,12 @@ export async function initializeServiceWorker(): Promise<ServiceWorkerStatus> {
       if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
         try {
           const registration = await navigator.serviceWorker.ready
-          await registration.sync.register('periodic-sync')
-          console.log('✅ Background sync registered')
+          // Type assertion for sync property which may not be in all TypeScript definitions
+          const syncRegistration = registration as any
+          if (syncRegistration.sync) {
+            await syncRegistration.sync.register('periodic-sync')
+            console.log('✅ Background sync registered')
+          }
         } catch (error) {
           console.warn('⚠️ Background sync registration failed:', error)
         }

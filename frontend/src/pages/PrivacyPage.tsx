@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { DashboardLayout } from '../components/common/DashboardLayout'
 import { PrivacySettings } from '../components/privacy/PrivacySettings'
 import { COPPACompliance } from '../components/privacy/COPPACompliance'

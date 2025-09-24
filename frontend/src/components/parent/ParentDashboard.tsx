@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { parentService } from '../../services/parentService'
 import { StudentLink, ParentDashboardData } from '../../types/parent'
 import { Card } from '../common/Card'

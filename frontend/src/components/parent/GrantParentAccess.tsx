@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { parentService } from '../../services/parentService'
 import { Card } from '../common/Card'
 import { Button } from '../common/Button'
