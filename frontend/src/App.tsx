@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { useEffect } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
+import { initializeServiceWorker } from './utils/serviceWorker'
 import { DevBanner } from './components/common/DevBanner'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
@@ -14,8 +16,20 @@ import { EnglishProgressPage } from './pages/EnglishProgressPage'
 import { ProgressPage } from './pages/ProgressPage'
 import { TutorPage } from './pages/TutorPage'
 import { ParentDashboardPage } from './pages/ParentDashboardPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 
 function App() {
+  // Initialize service worker for offline support
+  useEffect(() => {
+    initializeServiceWorker().then((status) => {
+      if (status.isRegistered) {
+        console.log('✅ Offline support enabled')
+      } else {
+        console.warn('⚠️ Offline support not available')
+      }
+    })
+  }, [])
+
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50">
@@ -96,6 +110,14 @@ function App() {
             }
           />
           <Route path="/parent" element={<ParentDashboardPage />} />
+          <Route
+            path="/privacy"
+            element={
+              <ProtectedRoute>
+                <PrivacyPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <Toaster position="top-right" />
       </div>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISEE AI Tutor - Offline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .retry-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .retry-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .offline-features {
+            margin-top: 2rem;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .offline-features h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .offline-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .offline-features li::before {
+            content: "✓";
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .connection-status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .connection-status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .connection-status.online {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .checking {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📚</div>
+        <h1>You're Offline</h1>
+        <p>Don't worry! You can still continue studying with cached content while we work to reconnect you.</p>
+        
+        <button class="retry-button" onclick="checkConnection()">
+            <span id="retry-text">Check Connection</span>
+        </button>
+        
+        <button class="retry-button" onclick="goHome()">
+            Return to App
+        </button>
+        
+        <div id="connection-status" class="connection-status offline">
+            📡 Connection Status: Offline
+        </div>
+        
+        <div class="offline-features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>Previously loaded practice problems</li>
+                <li>Cached reading passages and vocabulary</li>
+                <li>Your progress data and achievements</li>
+                <li>Essay drafts saved locally</li>
+                <li>Study streak and goal tracking</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let isChecking = false;
+        
+        function checkConnection() {
+            if (isChecking) return;
+            
+            isChecking = true;
+            const retryButton = document.querySelector('.retry-button');
+            const retryText = document.getElementById('retry-text');
+            const statusDiv = document.getElementById('connection-status');
+            
+            retryButton.classList.add('checking');
+            retryText.textContent = 'Checking...';
+            statusDiv.textContent = '📡 Connection Status: Checking...';
+            statusDiv.className = 'connection-status checking';
+            
+            // Try to fetch a small resource to test connectivity
+            fetch('/api/health', { 
+                method: 'GET',
+                cache: 'no-cache',
+                signal: AbortSignal.timeout(5000)
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusDiv.textContent = '📡 Connection Status: Online';
+                    statusDiv.className = 'connection-status online';
+                    retryText.textContent = 'Connected! Redirecting...';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    throw new Error('Server not responding');
+                }
+            })
+            .catch(error => {
+                console.log('Still offline:', error.message);
+                statusDiv.textContent = '📡 Connection Status: Still Offline';
+                statusDiv.className = 'connection-status offline';
+                retryText.textContent = 'Try Again';
+            })
+            .finally(() => {
+                isChecking = false;
+                retryButton.classList.remove('checking');
+            });
+        }
+        
+        function goHome() {
+            window.location.href = '/';
+        }
+        
+        // Auto-check connection periodically
+        setInterval(() => {
+            if (!isChecking && navigator.onLine) {
+                checkConnection();
+            }
+        }, 30000); // Check every 30 seconds
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            const statusDiv = document.getElementById('connection-status');
+            statusDiv.textContent = '📡 Connection Status: Back Online!';
+            statusDiv.className = 'connection-status online';
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        });
+        
+        window.addEventListener('offline', () => {
+            const statusDiv = document.getElementById('connection-status');
+            statusDiv.textContent = '📡 Connection Status: Offline';
+            statusDiv.className = 'connection-status offline';
+        });
+        
+        // Initial connection check
+        if (navigator.onLine) {
+            setTimeout(checkConnection, 1000);
+        }
+    </script>
+</body>
+</html>

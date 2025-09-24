@@ -1,7 +1,10 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock Supabase client
+// Setup for integration tests - less mocking than unit tests
+// We want to test real integrations between components and services
+
+// Mock only external services that we can't control in tests
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     auth: {
@@ -28,36 +31,8 @@ vi.mock('@supabase/supabase-js', () => ({
   }))
 }))
 
-// Mock React Router
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: () => vi.fn(),
-    useLocation: () => ({ pathname: '/' }),
-    useParams: () => ({})
-  }
-})
-
-// Mock Chart.js
-vi.mock('react-chartjs-2', () => ({
-  Line: vi.fn(() => null),
-  Bar: vi.fn(() => null),
-  Doughnut: vi.fn(() => null)
-}))
-
-// Mock KaTeX
-vi.mock('react-katex', () => ({
-  InlineMath: vi.fn(() => null),
-  BlockMath: vi.fn(() => null)
-}))
-
-// Global test utilities
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn()
-}))
+// Mock fetch for API calls
+global.fetch = vi.fn()
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -73,3 +48,14 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn()
   }))
 })
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn()
+}))
+
+// Setup test environment variables
+process.env.VITE_SUPABASE_URL = 'http://localhost:54321'
+process.env.VITE_SUPABASE_ANON_KEY = 'test-anon-key'

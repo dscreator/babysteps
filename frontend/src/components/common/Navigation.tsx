@@ -44,6 +44,7 @@ export function Navigation({ className = '' }: NavigationProps) {
     { path: '/practice/essay', label: 'Essay Practice', icon: '✍️' },
     { path: '/tutor', label: 'AI Tutor', icon: '🤖' },
     { path: '/progress', label: 'Progress', icon: '📈' },
+    { path: '/privacy', label: 'Privacy', icon: '🔒' },
   ];
 
   if (!user) {

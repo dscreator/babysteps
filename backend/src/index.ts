@@ -11,6 +11,8 @@ import { tutorRoutes } from './routes/tutor'
 import { parentRoutes, studentParentRoutes } from './routes/parent'
 import { notificationRoutes } from './routes/notifications'
 import { notificationScheduler } from './services/notificationScheduler'
+import syncRoutes from './routes/sync'
+import privacyRoutes from './routes/privacy'
 
 // Load environment variables
 dotenv.config()
@@ -41,6 +43,8 @@ app.use('/api/tutor', tutorRoutes)
 app.use('/api/parent', parentRoutes)
 app.use('/api/student/parent', studentParentRoutes)
 app.use('/api/notifications', notificationRoutes)
+app.use('/api/sync', syncRoutes)
+app.use('/api/privacy', privacyRoutes)
 
 // Error handling
 app.use(errorHandler)
