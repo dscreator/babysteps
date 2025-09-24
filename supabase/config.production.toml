@@ -1,0 +1,65 @@
+# Production Supabase Configuration
+
+project_id = "your-production-project-id"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = false
+port = 54323
+
+[inbucket]
+enabled = false
+port = 54324
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MiB"
+image_transformation = {enabled = true}
+
+[auth]
+enabled = true
+port = 54326
+site_url = "https://babysteps-frontend.vercel.app"
+additional_redirect_urls = ["https://babysteps-frontend.vercel.app/**"]
+jwt_expiry = 3600
+enable_signup = true
+enable_email_confirmations = true
+enable_sms_confirmations = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+redirect_uri = ""
+
+[edge_runtime]
+enabled = true
+port = 54327
+
+[analytics]
+enabled = false
+port = 54328
+
+[functions]
+verify_jwt = true

@@ -16,7 +16,10 @@
     "build:backend": "cd backend && npm run build",
     "test": "npm run test:frontend && npm run test:backend",
     "test:frontend": "cd frontend && npm test",
-    "test:backend": "cd backend && npm test"
+    "test:backend": "cd backend && npm test",
+    "deploy:staging": "vercel --target preview",
+    "deploy:production": "vercel --prod",
+    "deploy:preview": "vercel"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

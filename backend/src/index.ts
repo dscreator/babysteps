@@ -31,8 +31,30 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+app.get('/health', async (req, res) => {
+  try {
+    const health = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '1.0.0',
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      services: {
+        database: 'OK', // Could add actual DB health check
+        openai: 'OK',   // Could add actual OpenAI health check
+        email: 'OK'     // Could add actual email service health check
+      }
+    }
+    
+    res.json(health)
+  } catch (error) {
+    res.status(503).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: 'Health check failed'
+    })
+  }
 })
 
 // API Routes

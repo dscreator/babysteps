@@ -12,11 +12,17 @@ build/
 .env
 .env.local
 .env.production
+.env.staging
 .env.development
 */.env
 */.env.local
 */.env.production
+*/.env.staging
 */.env.development
+
+# Deployment configurations (keep templates)
+!*/.env.production.example
+!*/.env.staging.example
 
 # IDE files
 .vscode/
