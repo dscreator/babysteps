@@ -50,6 +50,10 @@ An AI-powered web application to help middle school students prepare for the Ind
 
 Visit http://localhost:5173 to see the application.
 
+## Live Demo
+
+Production: https://babysteps-frontend-lime.vercel.app
+
 ## Project Structure
 
 ```
