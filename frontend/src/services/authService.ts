@@ -54,14 +54,150 @@ export interface AuthResponse {
 
 // Authentication service functions
 export const authService = {
-  // Register new user with backend API
+  // Register new user with Supabase directly
   async register(data: RegisterRequest): Promise<ApiResponse<AuthResponse> | ApiError> {
-    return apiService.post<AuthResponse>('/auth/register', data)
+    try {
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+          }
+        }
+      })
+
+      if (error) {
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+          success: false,
+        }
+      }
+
+      if (!authData.user) {
+        return {
+          data: null,
+          error: {
+            message: 'Registration failed',
+            code: 'REGISTRATION_FAILED',
+          },
+          success: false,
+        }
+      }
+
+      // Create user profile
+      const userProfile: UserProfile = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        preferences: {
+          studyReminders: true,
+          parentNotifications: false,
+          difficultyLevel: 'adaptive',
+          dailyGoalMinutes: 30,
+        }
+      }
+
+      return {
+        data: {
+          user: userProfile,
+          session: {
+            access_token: authData.session?.access_token || '',
+            refresh_token: authData.session?.refresh_token || '',
+            expires_at: authData.session?.expires_at || 0,
+          }
+        },
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Registration failed',
+          code: 'REGISTRATION_ERROR',
+        },
+        success: false,
+      }
+    }
   },
 
-  // Login user with backend API
+  // Login user with Supabase directly
   async login(data: LoginRequest): Promise<ApiResponse<AuthResponse> | ApiError> {
-    return apiService.post<AuthResponse>('/auth/login', data)
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
+
+      if (error) {
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+          success: false,
+        }
+      }
+
+      if (!authData.user) {
+        return {
+          data: null,
+          error: {
+            message: 'Login failed',
+            code: 'LOGIN_FAILED',
+          },
+          success: false,
+        }
+      }
+
+      // Create user profile from auth data
+      const userProfile: UserProfile = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        firstName: authData.user.user_metadata?.first_name || '',
+        lastName: authData.user.user_metadata?.last_name || '',
+        createdAt: authData.user.created_at,
+        updatedAt: new Date().toISOString(),
+        preferences: {
+          studyReminders: true,
+          parentNotifications: false,
+          difficultyLevel: 'adaptive',
+          dailyGoalMinutes: 30,
+        }
+      }
+
+      return {
+        data: {
+          user: userProfile,
+          session: {
+            access_token: authData.session?.access_token || '',
+            refresh_token: authData.session?.refresh_token || '',
+            expires_at: authData.session?.expires_at || 0,
+          }
+        },
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Login failed',
+          code: 'LOGIN_ERROR',
+        },
+        success: false,
+      }
+    }
   },
 
   // Logout user
