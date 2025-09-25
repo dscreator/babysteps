@@ -10,6 +10,41 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // Performance optimizations
+    target: 'es2015',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for third-party libraries
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          // Chart libraries
+          charts: ['chart.js', 'react-chartjs-2'],
+          // UI libraries
+          ui: ['lucide-react', 'clsx'],
+          // API and data
+          api: ['@supabase/supabase-js', '@tanstack/react-query', 'axios'],
+        },
+      },
+    },
+    // Enable source maps for production debugging
+    sourcemap: true,
+    // Optimize chunk size
+    chunkSizeWarningLimit: 1000,
+  },
+  server: {
+    // Development server optimizations
+    hmr: {
+      overlay: false,
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
