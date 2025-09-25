@@ -52,11 +52,12 @@ export interface AuthResponse {
   }
 }
 
-// Authentication service functions
+// Authentication service functions - v2.0 (Supabase direct)
 export const authService = {
   // Register new user with Supabase directly
   async register(data: RegisterRequest): Promise<ApiResponse<AuthResponse> | ApiError> {
     try {
+      console.log('🚀 NEW AUTH SERVICE v2.0 - Using Supabase directly!')
       console.log('Attempting registration with Supabase...', { email: data.email })
       
       const { data: authData, error } = await supabase.auth.signUp({
