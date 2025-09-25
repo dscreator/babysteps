@@ -1,5 +1,21 @@
-import { apiService, ApiResponse, ApiError } from './apiService'
 import { supabase } from '../lib/supabase'
+
+// Define types locally to avoid apiService dependency
+export interface ApiResponse<T = any> {
+  data: T
+  error: null
+  success: true
+}
+
+export interface ApiError {
+  data: null
+  error: {
+    message: string
+    code?: string
+    details?: any
+  }
+  success: false
+}
 
 // Authentication types
 export interface LoginRequest {
@@ -239,14 +255,123 @@ export const authService = {
     }
   },
 
-  // Get current user profile
+  // Get current user profile (using Supabase session)
   async getProfile(): Promise<ApiResponse<UserProfile> | ApiError> {
-    return apiService.get<UserProfile>('/auth/profile')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.user) {
+        return {
+          data: null,
+          error: {
+            message: 'No authenticated user',
+            code: 'NO_USER',
+          },
+          success: false,
+        }
+      }
+
+      const userProfile: UserProfile = {
+        id: session.user.id,
+        email: session.user.email!,
+        firstName: session.user.user_metadata?.first_name || '',
+        lastName: session.user.user_metadata?.last_name || '',
+        createdAt: session.user.created_at,
+        updatedAt: new Date().toISOString(),
+        preferences: {
+          studyReminders: true,
+          parentNotifications: false,
+          difficultyLevel: 'adaptive',
+          dailyGoalMinutes: 30,
+        }
+      }
+
+      return {
+        data: userProfile,
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Failed to get profile',
+          code: 'PROFILE_ERROR',
+        },
+        success: false,
+      }
+    }
   },
 
-  // Update user profile
+  // Update user profile (using Supabase user metadata)
   async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<UserProfile> | ApiError> {
-    return apiService.put<UserProfile>('/auth/profile', data)
+    try {
+      const { data: updateData, error } = await supabase.auth.updateUser({
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          exam_date: data.examDate,
+          grade_level: data.gradeLevel,
+          parent_email: data.parentEmail,
+          preferences: data.preferences,
+        }
+      })
+
+      if (error) {
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+          success: false,
+        }
+      }
+
+      if (!updateData.user) {
+        return {
+          data: null,
+          error: {
+            message: 'Update failed',
+            code: 'UPDATE_FAILED',
+          },
+          success: false,
+        }
+      }
+
+      const userProfile: UserProfile = {
+        id: updateData.user.id,
+        email: updateData.user.email!,
+        firstName: updateData.user.user_metadata?.first_name || '',
+        lastName: updateData.user.user_metadata?.last_name || '',
+        examDate: updateData.user.user_metadata?.exam_date,
+        gradeLevel: updateData.user.user_metadata?.grade_level,
+        parentEmail: updateData.user.user_metadata?.parent_email,
+        createdAt: updateData.user.created_at,
+        updatedAt: new Date().toISOString(),
+        preferences: updateData.user.user_metadata?.preferences || {
+          studyReminders: true,
+          parentNotifications: false,
+          difficultyLevel: 'adaptive',
+          dailyGoalMinutes: 30,
+        }
+      }
+
+      return {
+        data: userProfile,
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Update failed',
+          code: 'UPDATE_ERROR',
+        },
+        success: false,
+      }
+    }
   },
 
   // Refresh session token
@@ -280,16 +405,25 @@ export const authService = {
       }
     }
 
-    // Get updated profile from backend
-    const profileResult = await apiService.get<UserProfile>('/auth/profile')
-    
-    if (!profileResult.success) {
-      return profileResult
+    // Get updated profile from session
+    const userProfile: UserProfile = {
+      id: data.session!.user.id,
+      email: data.session!.user.email!,
+      firstName: data.session!.user.user_metadata?.first_name || '',
+      lastName: data.session!.user.user_metadata?.last_name || '',
+      createdAt: data.session!.user.created_at,
+      updatedAt: new Date().toISOString(),
+      preferences: {
+        studyReminders: true,
+        parentNotifications: false,
+        difficultyLevel: 'adaptive',
+        dailyGoalMinutes: 30,
+      }
     }
 
     return {
       data: {
-        user: profileResult.data,
+        user: userProfile,
         session: {
           access_token: data.session!.access_token,
           refresh_token: data.session!.refresh_token,
