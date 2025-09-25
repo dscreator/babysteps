@@ -2,15 +2,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { 
-  authService, 
+  supabaseAuthService as authService, 
   LoginRequest, 
   RegisterRequest, 
   UpdateProfileRequest,
   AuthResponse,
   UserProfile
-} from '../services/authService'
+} from '../services/supabaseAuthService'
 import { queryKeys } from '../lib/queryClient'
-import { isApiError } from '../services/apiService'
+import { isApiError } from '../services/supabaseAuthService'
 
 // Login mutation hook
 export function useLogin() {

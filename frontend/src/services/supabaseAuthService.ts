@@ -262,3 +262,8 @@ export const supabaseAuthService = {
     }
   },
 }
+//
+ Type guard for API responses
+export function isApiError(response: any): response is ApiError {
+  return response.success === false && response.error
+}
