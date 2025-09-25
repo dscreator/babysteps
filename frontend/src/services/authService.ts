@@ -57,6 +57,8 @@ export const authService = {
   // Register new user with Supabase directly
   async register(data: RegisterRequest): Promise<ApiResponse<AuthResponse> | ApiError> {
     try {
+      console.log('Attempting registration with Supabase...', { email: data.email })
+      
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -67,6 +69,8 @@ export const authService = {
           }
         }
       })
+
+      console.log('Supabase response:', { authData, error })
 
       if (error) {
         return {
@@ -202,13 +206,36 @@ export const authService = {
 
   // Logout user
   async logout(): Promise<ApiResponse<void> | ApiError> {
-    // First logout from backend
-    const result = await apiService.post<void>('/auth/logout')
-    
-    // Then logout from Supabase
-    await supabase.auth.signOut()
-    
-    return result
+    try {
+      // Logout from Supabase directly
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+          success: false,
+        }
+      }
+
+      return {
+        data: null,
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Logout failed',
+          code: 'LOGOUT_ERROR',
+        },
+        success: false,
+      }
+    }
   },
 
   // Get current user profile
