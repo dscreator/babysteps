@@ -32,7 +32,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (useMockData) {
+    // Check if we have proper Supabase credentials
+    const hasSupabaseCredentials = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    
+    if (useMockData || !hasSupabaseCredentials) {
       // Use mock authentication
       mockAuth.getSession().then(({ data: { session } }) => {
         setSession(session as any)
@@ -68,7 +71,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    if (useMockData) {
+    const hasSupabaseCredentials = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    
+    if (useMockData || !hasSupabaseCredentials) {
       const { error } = await mockAuth.signIn(email, password)
       if (error) throw error
     } else {
@@ -81,7 +86,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const signUp = async (email: string, password: string) => {
-    if (useMockData) {
+    const hasSupabaseCredentials = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    
+    if (useMockData || !hasSupabaseCredentials) {
       const { error } = await mockAuth.signUp(email, password)
       if (error) throw error
     } else {
@@ -94,7 +101,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const signOut = async () => {
-    if (useMockData) {
+    const hasSupabaseCredentials = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+    
+    if (useMockData || !hasSupabaseCredentials) {
       const { error } = await mockAuth.signOut()
       if (error) throw error
     } else {
