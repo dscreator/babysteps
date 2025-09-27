@@ -143,6 +143,8 @@ export function ProfileSetup({ onComplete, initialData }: ProfileSetupProps) {
         },
       });
 
+      console.debug('Profile update result:', result);
+
       if (!result) {
         onComplete();
         return;

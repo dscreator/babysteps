@@ -271,19 +271,24 @@ export const authService = {
         }
       }
 
+      const metadata = session.user.user_metadata || {}
+
       const userProfile: UserProfile = {
         id: session.user.id,
         email: session.user.email!,
-        firstName: session.user.user_metadata?.first_name || '',
-        lastName: session.user.user_metadata?.last_name || '',
+        firstName: metadata.first_name || '',
+        lastName: metadata.last_name || '',
+        examDate: metadata.exam_date,
+        gradeLevel: metadata.grade_level,
+        parentEmail: metadata.parent_email,
         createdAt: session.user.created_at,
         updatedAt: new Date().toISOString(),
-        preferences: {
+        preferences: metadata.preferences || {
           studyReminders: true,
           parentNotifications: false,
           difficultyLevel: 'adaptive',
           dailyGoalMinutes: 30,
-        }
+        },
       }
 
       return {
