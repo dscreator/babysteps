@@ -143,6 +143,11 @@ export function ProfileSetup({ onComplete, initialData }: ProfileSetupProps) {
         },
       });
 
+      if (!result) {
+        onComplete();
+        return;
+      }
+
       if (isApiError(result)) {
         setErrors({ general: result.error.message });
       } else {
