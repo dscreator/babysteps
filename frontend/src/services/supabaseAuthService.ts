@@ -261,6 +261,80 @@ export const supabaseAuthService = {
       }
     }
   },
+
+  // Update user profile metadata
+  async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<UserProfile> | ApiError> {
+    try {
+      const metadata: Record<string, any> = {}
+
+      if (data.firstName !== undefined) metadata.first_name = data.firstName
+      if (data.lastName !== undefined) metadata.last_name = data.lastName
+      if (data.examDate !== undefined) metadata.exam_date = data.examDate
+      if (data.gradeLevel !== undefined) metadata.grade_level = data.gradeLevel
+      if (data.parentEmail !== undefined) metadata.parent_email = data.parentEmail
+      if (data.preferences !== undefined) metadata.preferences = data.preferences
+
+      const { data: updateData, error } = await supabase.auth.updateUser({
+        data: metadata,
+      })
+
+      if (error) {
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            code: error.name,
+          },
+          success: false,
+        }
+      }
+
+      if (!updateData.user) {
+        return {
+          data: null,
+          error: {
+            message: 'Update failed',
+            code: 'UPDATE_FAILED',
+          },
+          success: false,
+        }
+      }
+
+      const user = updateData.user
+      const userProfile: UserProfile = {
+        id: user.id,
+        email: user.email!,
+        firstName: user.user_metadata?.first_name || '',
+        lastName: user.user_metadata?.last_name || '',
+        examDate: user.user_metadata?.exam_date,
+        gradeLevel: user.user_metadata?.grade_level,
+        parentEmail: user.user_metadata?.parent_email,
+        createdAt: user.created_at,
+        updatedAt: new Date().toISOString(),
+        preferences: user.user_metadata?.preferences || {
+          studyReminders: true,
+          parentNotifications: false,
+          difficultyLevel: 'adaptive',
+          dailyGoalMinutes: 30,
+        },
+      }
+
+      return {
+        data: userProfile,
+        error: null,
+        success: true,
+      }
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          message: error instanceof Error ? error.message : 'Profile update failed',
+          code: 'PROFILE_UPDATE_ERROR',
+        },
+        success: false,
+      }
+    }
+  },
 }
 // Type guard for API responses
 export function isApiError(response: any): response is ApiError {
